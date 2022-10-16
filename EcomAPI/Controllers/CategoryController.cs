@@ -24,46 +24,81 @@ namespace EcomAPI.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Category> Get()
+        public IActionResult Get()
         {
-            return _context.categories;
+            return Ok(_context.categories);
         }
 
         [HttpGet("{id}")]
-        public Category GetDetals(int id)
+        public IActionResult GetDetals(int id)
         {
             var list = _context.categories.Find(id);
-            return list;
+            if (list == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(list);
+            }
+            
         }
 
         [HttpPost]
-        public void Post([FromBody]Category category)
+        public IActionResult Post([FromBody]Category category)
         {
             //List<Category> categories = new List<Category> { };
             //categories.Add(category);
 
-            _context.categories.Add(category);
-            _context.SaveChanges();
+            if (category == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                _context.categories.Add(category);
+                _context.SaveChanges();
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            
         }
 
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Category category)
+        public IActionResult Put(int id, [FromBody] Category category)
         {
             var categorylist = _context.categories.FirstOrDefault(x => x.Id == id);
-            categorylist.Title = category.Title;
-            categorylist.DisplayOrder = category.DisplayOrder;
-            
-            _context.categories.Update(categorylist);
-            _context.SaveChanges();
+
+            if (categorylist == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                categorylist.Title = category.Title;
+                categorylist.DisplayOrder = category.DisplayOrder;
+
+                _context.categories.Update(categorylist);
+                _context.SaveChanges();
+                return Ok("Category Update Sucessfully");
+            } 
 
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
             var category = _context.categories.Find(id);
-            _context.categories.Remove(category);
-            _context.SaveChanges();
+            if (category == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _context.categories.Remove(category);
+                _context.SaveChanges();
+                return Ok("Category Deleted Sucessfully");
+            }
+            
         }
     }
 }
