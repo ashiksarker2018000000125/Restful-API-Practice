@@ -2,6 +2,7 @@
 using EcomAPI.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcomAPI.Controllers
 {
@@ -24,15 +25,15 @@ namespace EcomAPI.Controllers
 
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(_context.categories);
+            return Ok(await _context.categories.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetDetals(int id)
+        public async Task<IActionResult> GetDetals(int id)
         {
-            var list = _context.categories.Find(id);
+            var list = await _context.categories.FindAsync(id);
             if (list == null)
             {
                 return NotFound();
@@ -45,7 +46,7 @@ namespace EcomAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody]Category category)
+        public async Task<IActionResult> Post([FromBody]Category category)
         {
             //List<Category> categories = new List<Category> { };
             //categories.Add(category);
@@ -56,17 +57,17 @@ namespace EcomAPI.Controllers
             }
             else
             {
-                _context.categories.Add(category);
-                _context.SaveChanges();
+                await _context.categories.AddAsync(category);
+                await _context.SaveChangesAsync();
                 return StatusCode(StatusCodes.Status201Created);
             }
             
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Category category)
+        public async Task<IActionResult> Put(int id, [FromBody] Category category)
         {
-            var categorylist = _context.categories.FirstOrDefault(x => x.Id == id);
+            var categorylist =await  _context.categories.FirstOrDefaultAsync(x => x.Id == id);
 
             if (categorylist == null)
             {
@@ -78,16 +79,16 @@ namespace EcomAPI.Controllers
                 categorylist.DisplayOrder = category.DisplayOrder;
 
                 _context.categories.Update(categorylist);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Category Update Sucessfully");
             } 
 
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var category = _context.categories.Find(id);
+            var category = await _context.categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
@@ -95,7 +96,7 @@ namespace EcomAPI.Controllers
             else
             {
                 _context.categories.Remove(category);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok("Category Deleted Sucessfully");
             }
             
